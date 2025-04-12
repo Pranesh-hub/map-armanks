@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #B7FFD3;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      color: #2C3E50;
+      margin-bottom: 40px;
+    }
+
+    .button {
+      background-color: white;
+      color: #444;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 12px 20px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      width: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .button:hover {
+      background-color: #f1f1f1;
+    }
+
+    .button img {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+    }
+  </style>
+
+  <!-- ✅ Firebase v9 CDN (Compat mode for browser) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD6-n0e5UgEPbcWflNRPO8hsLRmNDG2OLc",
+      authDomain: "maps-4d764.firebaseapp.com",
+      projectId: "maps-4d764",
+      storageBucket: "maps-4d764.appspot.com",
+      messagingSenderId: "550318284108",
+      appId: "1:550318284108:web:28598833411a8fb64283e9"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    // Monitor auth state
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        console.log("✅ User is signed in:", user.displayName);
+      } else {
+        console.log("🔒 No user signed in.");
+      }
+    });
+
+    function signInWithGoogle() {
+  console.log("Attempting sign in...");
+  auth.signInWithPopup(provider)
+    .then((result) => {
+      const user = result.user;
+      console.log("✅ Signed in as:", user);
+      alert(`Welcome ${user.displayName}`);
+      // 🔁 Redirect to map
+      window.location.href = "index.html";
+    })
+    .catch((error) => {
+      console.error("❌ Auth error:", error.message);
+      alert("Login failed: " + error.message);
+    });
+}
+  </script>
+</head>
+
+<body>
+  <h1>Welcome to Map Portal</h1>
+
+  <button class="button" onclick="signInWithGoogle()">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
+    Sign up with Google
+  </button>
+
+  <button class="button" onclick="signInWithGoogle()">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
+    Log in with Google
+  </button>
+</body>
+</html>

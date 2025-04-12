@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Map Page</title>
+  <meta charset="UTF-8" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #header {
+      background-color: #2C3E50;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #logoutBtn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #map {
+      width: 100%;
+      height: calc(100vh - 140px);
+    }
+
+    #search-container {
+      padding: 10px 20px;
+      background-color: #ecf0f1;
+    }
+
+    #placeInput {
+      width: 300px;
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    #suggestions {
+      background: white;
+      border: 1px solid #ccc;
+      max-height: 150px;
+      overflow-y: auto;
+      width: 300px;
+      margin-top: 4px;
+    }
+
+    .suggestion {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .suggestion:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <!-- MapLibre -->
+  <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+</head>
+
+<body>
+  <div id="header">
+    <div id="userInfo">Welcome!</div>
+    <button id="logoutBtn" onclick="logout()">Logout</button>
+  </div>
+
+  <div id="search-container">
+    <input type="text" id="placeInput" placeholder="Search for a place..." />
+    <div id="suggestions"></div>
+    <p id="output"></p>
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD6-n0e5UgEPbcWflNRPO8hsLRmNDG2OLc",
+      authDomain: "maps-4d764.firebaseapp.com",
+      projectId: "maps-4d764",
+      storageBucket: "maps-4d764.appspot.com",
+      messagingSenderId: "550318284108",
+      appId: "1:550318284108:web:28598833411a8fb64283e9"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    let map;
+    let marker = null; // single marker
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        document.getElementById("userInfo").innerText = `Welcome, ${user.displayName}`;
+        initMap();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    }
+
+    function initMap() {
+      map = new maplibregl.Map({
+        container: 'map',
+        style: 'https://tiles.openfreemap.org/styles/liberty',
+        center: [77.2090, 28.6139], // New Delhi
+        zoom: 10
+      });
+
+      map.addControl(new maplibregl.NavigationControl());
+      setupSearch();
+    }
+
+    function setupSearch() {
+      const apiKey = "0db99574870d42d1a54783dd934c33e0"; // Your OpenCage API key
+      const input = document.getElementById('placeInput');
+      const suggestionsDiv = document.getElementById('suggestions');
+      const output = document.getElementById('output');
+      let timeout;
+
+      input.addEventListener('input', () => {
+        clearTimeout(timeout);
+        const query = input.value.trim();
+        if (query.length < 3) {
+          suggestionsDiv.innerHTML = '';
+          return;
+        }
+
+        timeout = setTimeout(async () => {
+          const url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(query)}&key=${apiKey}&limit=5`;
+          const res = await fetch(url);
+          const data = await res.json();
+
+          suggestionsDiv.innerHTML = '';
+          data.results.forEach(result => {
+            const div = document.createElement('div');
+            div.className = 'suggestion';
+            div.innerText = result.formatted;
+            div.onclick = () => {
+              input.value = result.formatted;
+              suggestionsDiv.innerHTML = '';
+              output.innerText = `Lat: ${result.geometry.lat}, Lng: ${result.geometry.lng}`;
+
+              // Fly to location
+              map.flyTo({
+                center: [result.geometry.lng, result.geometry.lat],
+                zoom: 13
+              });
+
+              // Remove old marker
+              if (marker) marker.remove();
+
+              // Add new marker
+              marker = new maplibregl.Marker({ color: '#e74c3c' })
+                .setLngLat([result.geometry.lng, result.geometry.lat])
+                .addTo(map);
+            };
+            suggestionsDiv.appendChild(div);
+          });
+        }, 300);
+      });
+    }
+  </script>
+</body>
+
+</html>
