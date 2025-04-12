@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <title>Map Page</title>
   <meta charset="UTF-8" />
@@ -87,20 +86,21 @@
   <div id="map"></div>
 
   <script>
+    // 🔐 Firebase config (replace these values locally)
     const firebaseConfig = {
-      apiKey: "AIzaSyD6-n0e5UgEPbcWflNRPO8hsLRmNDG2OLc",
-      authDomain: "maps-4d764.firebaseapp.com",
-      projectId: "maps-4d764",
-      storageBucket: "maps-4d764.appspot.com",
-      messagingSenderId: "550318284108",
-      appId: "1:550318284108:web:28598833411a8fb64283e9"
+      apiKey: "YOUR_FIREBASE_API_KEY",
+      authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
+      projectId: "YOUR_FIREBASE_PROJECT_ID",
+      storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
+      appId: "YOUR_FIREBASE_APP_ID"
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
     let map;
-    let marker = null; // single marker
+    let marker = null;
 
     auth.onAuthStateChanged((user) => {
       if (user) {
@@ -130,7 +130,7 @@
     }
 
     function setupSearch() {
-      const apiKey = "0db99574870d42d1a54783dd934c33e0"; // Your OpenCage API key
+      const apiKey = "YOUR_OPENCAGE_API_KEY"; // Replace locally with your key
       const input = document.getElementById('placeInput');
       const suggestionsDiv = document.getElementById('suggestions');
       const output = document.getElementById('output');
@@ -159,16 +159,12 @@
               suggestionsDiv.innerHTML = '';
               output.innerText = `Lat: ${result.geometry.lat}, Lng: ${result.geometry.lng}`;
 
-              // Fly to location
               map.flyTo({
                 center: [result.geometry.lng, result.geometry.lat],
                 zoom: 13
               });
 
-              // Remove old marker
               if (marker) marker.remove();
-
-              // Add new marker
               marker = new maplibregl.Marker({ color: '#e74c3c' })
                 .setLngLat([result.geometry.lng, result.geometry.lat])
                 .addTo(map);

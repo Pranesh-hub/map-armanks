@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Login</title>
   <style>
@@ -48,49 +49,40 @@
     }
   </style>
 
-  <!-- ✅ Firebase v9 CDN (Compat mode for browser) -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
   <script>
+    // 🔐 Firebase config (replace these values locally)
     const firebaseConfig = {
-      apiKey: "AIzaSyD6-n0e5UgEPbcWflNRPO8hsLRmNDG2OLc",
-      authDomain: "maps-4d764.firebaseapp.com",
-      projectId: "maps-4d764",
-      storageBucket: "maps-4d764.appspot.com",
-      messagingSenderId: "550318284108",
-      appId: "1:550318284108:web:28598833411a8fb64283e9"
+      apiKey: "YOUR_FIREBASE_API_KEY",
+      authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
+      projectId: "YOUR_FIREBASE_PROJECT_ID",
+      storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
+      appId: "YOUR_FIREBASE_APP_ID"
     };
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const provider = new firebase.auth.GoogleAuthProvider();
 
-    // Monitor auth state
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        console.log("✅ User is signed in:", user.displayName);
-      } else {
-        console.log("🔒 No user signed in.");
-      }
-    });
-
+    // Sign In or Sign Up with Google
     function signInWithGoogle() {
-  console.log("Attempting sign in...");
-  auth.signInWithPopup(provider)
-    .then((result) => {
-      const user = result.user;
-      console.log("✅ Signed in as:", user);
-      alert(`Welcome ${user.displayName}`);
-      // 🔁 Redirect to map
-      window.location.href = "index.html";
-    })
-    .catch((error) => {
-      console.error("❌ Auth error:", error.message);
-      alert("Login failed: " + error.message);
-    });
-}
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          const user = result.user;
+          alert(`Logged in as ${user.displayName}`);
+          window.location.href = "index.html"; // Redirect to map page after login
+        })
+        .catch((error) => {
+          console.error("Auth error", error);
+          alert("Login failed: " + error.message);
+        });
+    }
   </script>
+
 </head>
 
 <body>
@@ -106,4 +98,5 @@
     Log in with Google
   </button>
 </body>
+
 </html>
